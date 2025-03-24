@@ -1,0 +1,25 @@
+name: Check Release Branch Source
+on:
+  workflow_call:
+        
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  check-source-branch:
+    name: Verify PR Source Branch
+    runs-on: shared-runners
+    
+    steps:
+      - name: Check if PR is from main branch
+        run: |
+          echo "Source branch: ${{ github.head_ref }}"
+          echo "Target branch: ${{ github.base_ref }}"
+
+          if [[ "${{ github.base_ref }}" == "release" && "${{ github.head_ref }}" != "main" ]]; then
+            echo "::error::Pull requests to 'release' branch must come from 'main' branch. Current source branch is '${{ github.head_ref }}'."
+            exit 1
+          else
+            echo "Branch verification passed! PR from '${{ github.head_ref }}' to '${{ github.base_ref }}' is allowed."
+          fi
